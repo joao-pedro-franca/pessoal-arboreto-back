@@ -1,10 +1,11 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository, Like } from 'typeorm';
+import { Repository } from 'typeorm';
 import { Microbioma } from './entities/microbioma.entity';
+import { Procedencia } from '../procedencia/entities/procedencia.entity';
 import { CreateMicrobiomaDto } from './dto/create-microbioma.dto';
 import { UpdateMicrobiomaDto } from './dto/update-microbioma.dto';
-
+ 
 @Injectable()
 export class MicrobiomaService {
   constructor(
@@ -13,15 +14,14 @@ export class MicrobiomaService {
   ) {}
 
   async create(createMicrobiomaDto: CreateMicrobiomaDto): Promise<Microbioma> {
-    const novoMicrobioma =
-      this.microbiomaRepository.create(createMicrobiomaDto);
+    const novoMicrobioma = this.microbiomaRepository.create(createMicrobiomaDto);
     return await this.microbiomaRepository.save(novoMicrobioma);
   }
 
   async findAll(): Promise<Microbioma[]> {
     return await this.microbiomaRepository.find({
       order: {
-        dcrMicrobioma: 'ASC', // nome do campo da entidade
+        dcrMicrobioma: 'ASC',
       },
     });
   }
@@ -29,19 +29,18 @@ export class MicrobiomaService {
   async findOne(id: number): Promise<Microbioma> {
     const microbioma = await this.microbiomaRepository.findOne({
       where: { codMicrobioma: id },
+      relations: ['procedencias'],
     });
 
     if (!microbioma) {
-      throw new NotFoundException(
-        `Microbioma com ID ${id} não encontrado`,
-      );
+      throw new NotFoundException(`Microbioma com ID ${id} não encontrada`);
     }
 
     return microbioma;
   }
 
   async update(
-    id: number,
+    id: number, 
     updateMicrobiomaDto: UpdateMicrobiomaDto,
   ): Promise<Microbioma> {
     const microbioma = await this.findOne(id);
@@ -62,19 +61,31 @@ export class MicrobiomaService {
   async searchByDescricao(descricao: string): Promise<Microbioma[]> {
     return await this.microbiomaRepository
       .createQueryBuilder('microbioma')
-      .where('microbioma.dcrMicrobioma LIKE :descricao', {
-        descricao: `%${descricao}%`,
+      .leftJoinAndSelect('microbioma.procedencias', 'procedencias')
+      .where('LOWER(microbioma.dcrMicrobioma LIKE LOWER(:descricao', {
+        descricao: `%${descricao}`
       })
       .orderBy('microbioma.dcrMicrobioma', 'ASC')
       .getMany();
   }
 
   async getEstatisticas(id: number): Promise<any> {
-    const microbioma = await this.findOne(id);
+    const estatisticas = await this.microbiomaRepository
+      .createQueryBuilder('microbioma')
+      .leftJoin('microbioma.procedencias', 'procedencia')
+      .select([
+        'microbioma.codMicrobioma',
+        'microbioma.dcrMicrobioma',
+        'COUNT(procedencia.codProcedencia) as totalProcedencias'
+      ])
+      .where('microbioma.codMicrobioma = :id', { id })
+      .groupBy('microbioma.codMicrobioma, microbioma.dcrMicrobioma')
+      .getRawOne();
 
     return {
-      descricao: microbioma.dcrMicrobioma,
-      codigo: microbioma.codMicrobioma,
+      codigo: estatisticas.microbioma_codMicrobioma,
+      descricao: estatisticas.microbioma_dcrMicrobioma,
+      totalProcedencias: parseInt(estatisticas.totalProcedencias) || 0,
     };
   }
 }
