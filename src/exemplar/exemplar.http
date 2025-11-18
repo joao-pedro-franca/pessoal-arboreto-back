@@ -1,0 +1,23 @@
+### list exemplar
+GET http://localhost:3000/exemplar/
+
+### Get exemplar by id
+GET http://localhost:3000/exemplar/uescArboreto_t2_IFJW3Rs0iC27Y_ux8d
+
+### create exemplar
+POST http://localhost:3000/exemplar
+Content-Type: application/json
+
+{
+    "name": "New Exemplar",
+    "description": "A new exemplar description",
+    "sizeHeight": 100,
+    "sizeWidth": 50,
+    "dateOfplanted": "2023-01-01"
+}
+
+### delete exemplar
+DELETE http://localhost:3000/exemplar/uescArboreto_t2_IFJW3Rs0iC27Y_ux8d
+
+### update exemplar
+PATCH http://localhost:3000/exemplar/:id
