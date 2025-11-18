@@ -11,8 +11,6 @@ export class MicrobiomaService {
   constructor(
     @InjectRepository(Microbioma)
     private microbiomaRepository: Repository<Microbioma>,
-    @InjectRepository(Procedencia)
-    private procedenciaRepository: Repository<Procedencia>,
   ) {}
 
   async create(createMicrobiomaDto: CreateMicrobiomaDto): Promise<Microbioma> {
@@ -20,17 +18,18 @@ export class MicrobiomaService {
     return await this.microbiomaRepository.save(novoMicrobioma);
   }
 
-  async findAll(): Promise<Microbioma> {
+  async findAll(): Promise<Microbioma[]> {
     return await this.microbiomaRepository.find({
       order: {
-        descricaoMicrobioma: 'ASC',
+        dcrMicrobioma: 'ASC',
       },
     });
   }
 
-  async findOne(id: number) Promise<Microbioma> {
+  async findOne(id: number): Promise<Microbioma> {
     const microbioma = await this.microbiomaRepository.findOne({
       where: { codMicrobioma: id },
+      relations: ['procedencias'],
     });
 
     if (!microbioma) {
@@ -62,18 +61,31 @@ export class MicrobiomaService {
   async searchByDescricao(descricao: string): Promise<Microbioma[]> {
     return await this.microbiomaRepository
       .createQueryBuilder('microbioma')
-      .where('microbioma.descricaoMicrobioma LIKE :descricao', { 
-        descricao: `%${descricao}%` 
+      .leftJoinAndSelect('microbioma.procedencias', 'procedencias')
+      .where('LOWER(microbioma.dcrMicrobioma LIKE LOWER(:descricao', {
+        descricao: `%${descricao}`
       })
-      .orderBy('microbioma.descricaoMicrobioma', 'ASC')
+      .orderBy('microbioma.dcrMicrobioma', 'ASC')
       .getMany();
   }
 
   async getEstatisticas(id: number): Promise<any> {
-    const familia = await this.findOne(id);
-    
+    const estatisticas = await this.microbiomaRepository
+      .createQueryBuilder('microbioma')
+      .leftJoin('microbioma.procedencias', 'procedencia')
+      .select([
+        'microbioma.codMicrobioma',
+        'microbioma.dcrMicrobioma',
+        'COUNT(procedencia.codProcedencia) as totalProcedencias'
+      ])
+      .where('microbioma.codMicrobioma = :id', { id })
+      .groupBy('microbioma.codMicrobioma, microbioma.dcrMicrobioma')
+      .getRawOne();
+
     return {
-      descricao: microbioma.descricaoMicrobioma,
-      codigo: microbioma.codMicrobioma,
+      codigo: estatisticas.microbioma_codMicrobioma,
+      descricao: estatisticas.microbioma_dcrMicrobioma,
+      totalProcedencias: parseInt(estatisticas.totalProcedencias) || 0,
     };
+  }
 }

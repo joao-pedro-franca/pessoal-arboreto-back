@@ -6,10 +6,9 @@ import {
   Patch, 
   Param, 
   Delete, 
-  Query, 
-  HttpCode,
-  ParseIntPipe 
+  Query 
 } from '@nestjs/common';
+
 import { MicrobiomaService } from './microbioma.service';
 import { CreateMicrobiomaDto } from './dto/create-microbioma.dto';
 import { UpdateMicrobiomaDto } from './dto/update-microbioma.dto';
@@ -29,31 +28,30 @@ export class MicrobiomaController {
   }
 
   @Get('search')
-  search(@Query('descricao') descricao: string) {
+  searchByDescricao(@Query('descricao') descricao: string) {
     return this.microbiomaService.searchByDescricao(descricao);
   }
 
   @Get(':id')
-  findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.microbiomaService.findOne(id);
+  findOne(@Param('id') id: string) {
+    return this.microbiomaService.findOne(+id);
   }
 
   @Get(':id/estatisticas')
-  getEstatisticas(@Param('id', ParseIntPipe) id: number) {
-    return this.microbiomaService.getEstatisticas(id);
+  getEstatisticas(@Param('id') id: string) {
+    return this.microbiomaService.getEstatisticas(+id);
   }
 
   @Patch(':id')
   update(
-    @Param('id', ParseIntPipe) id: number, 
+    @Param('id') id: string,
     @Body() updateMicrobiomaDto: UpdateMicrobiomaDto
   ) {
-    return this.microbiomaService.update(id, updateMicrobiomaDto);
+    return this.microbiomaService.update(+id, updateMicrobiomaDto);
   }
 
   @Delete(':id')
-  @HttpCode(204)
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    await this.microbiomaService.remove(id);
+  remove(@Param('id') id: string) {
+    return this.microbiomaService.remove(+id);
   }
 }

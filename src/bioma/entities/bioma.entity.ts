@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Procedencia } from 'src/procedencia/entities/procedencia.entity';
 
 @Entity('bioma')
 export class Bioma {
@@ -7,4 +8,7 @@ export class Bioma {
 
   @Column({ name: 'DCR_BIOMA', length: 50 })
   descricaoBioma: string;
+
+  @OneToMany(() => Procedencia, (procedencia) => procedencia.bioma)
+  procedencias: Procedencia[];
 }

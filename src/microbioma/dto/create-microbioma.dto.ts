@@ -1,8 +1,8 @@
-import { IsDateString, IsNumber, IsString } from "class-validator";
-
+import { IsNotEmpty, IsString, MaxLength } from "class-validator";
 
 export class CreateMicrobiomaDto {
-
     @IsString()
-    descricaoMicrobioma: string;
+    @IsNotEmpty()
+    @MaxLength(50)
+    dcrMicrobioma: string;
 }

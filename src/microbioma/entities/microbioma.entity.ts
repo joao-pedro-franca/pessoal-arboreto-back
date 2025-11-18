@@ -1,17 +1,18 @@
-import { Procedencia } from "src/procedencia/entities/procedencia.entity";
-import { BeforeInsert, Entity, OneToMany, PrimaryColumn, PrimaryGeneratedColumn } from "typeorm";
-import { Column } from "typeorm";
-
-const { nanoid } = require('nanoid');
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from 'typeorm';
+import { Procedencia } from '../../procedencia/entities/procedencia.entity';
 
 @Entity('microbioma')
 export class Microbioma {
-    @PrimaryGeneratedColumn({ name: 'COD_MICROBIOMA' })
+    @PrimaryGeneratedColumn({ name: 'cod_microbioma' })
     codMicrobioma: number;
 
-    @Column({ name: 'DCR_MICROBIOMA', length: 50 })
-    descricaoMicrobioma: string;
+    @Column({
+        name: 'dcr_microbioma',
+        length: 50, 
+        nullable: false
+    })
+    dcrMicrobioma: string;
 
     @OneToMany(() => Procedencia, (procedencia) => procedencia.microbioma)
-    procedencia: Procedencia[];
+    procedencias: Procedencia[];
 }
