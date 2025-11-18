@@ -22,6 +22,10 @@ export class Arvore {
   @Column({ name: 'DCR_QUADRA_PARCELA', length: 45 })
   quadraParcela: string;
 
+  @Column({ name: 'DATA_PLANTIO', type: 'date' })
+  dataPlantio: Date;
+
+
   // relacionamento com ESPECIE
   @ManyToOne(() => Especie, (especie) => especie.arvores)
   @JoinColumn({ name: 'COD_ESPECIE' })

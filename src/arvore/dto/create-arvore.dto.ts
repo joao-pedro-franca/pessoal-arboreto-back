@@ -14,6 +14,9 @@ export class CreateArvoreDto {
     @IsString()
     quadraParcela: string;
 
+    @IsDateString()
+    dataPlantio: string;
+
     @IsNumber()
     especieId: number;
 }
