@@ -22,8 +22,9 @@ export class Arvore {
   @Column({ name: 'DCR_QUADRA_PARCELA', length: 45 })
   quadraParcela: string;
 
-  @Column({ name: 'DATA_PLANTIO', type: 'date' })
+  @Column({ name: 'DATA_PLANTIO', type: 'date', nullable: true })
   dataPlantio: Date;
+
 
 
   // relacionamento com ESPECIE
