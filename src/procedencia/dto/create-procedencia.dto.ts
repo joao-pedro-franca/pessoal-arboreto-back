@@ -1,11 +1,23 @@
-import { isDateString, isNumber, isString } from "class-validator";
+import { IsOptional, IsNumber } from "class-validator";
 
 export class CreateProcedenciaDto {
-    codPais?: number;
+    // codPais?: number;
+
+    @IsOptional()
+    @IsNumber()
     codBioma?: number;
+
+    @IsOptional()
+    @IsNumber()
     codMicrobioma?: number;
-    codClasseProcedencia?: number;
-    codClasseAmeaca?: number;
+    // codClasseProcedencia?: number;
+    // codClasseAmeaca?: number;
+    @IsOptional()
+    @IsNumber()
     codArvore?: number;
+    
+    @IsOptional()
+    @IsNumber()
     codEspecie?: number;
 }
+

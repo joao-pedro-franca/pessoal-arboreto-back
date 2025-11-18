@@ -12,10 +12,22 @@ export class ProcedenciaService {
     private procedenciaRepository: Repository<Procedencia>,
   ) {} 
 
-  async create(createProcedenciaDto: CreateProcedenciaDto) {
-    const novaProcedencia = this.procedenciaRepository.create(createProcedenciaDto);
-    return await this.procedenciaRepository.save(novaProcedencia);
+  async create(CreateProcedenciaDto: CreateProcedenciaDto): Promise<Procedencia> {
+    const novaProcedencia = this.procedenciaRepository.create(CreateProcedenciaDto);
+    const saved = await this.procedenciaRepository.save(novaProcedencia);
+
+    const procedenciaComRelacoes = await this.procedenciaRepository.findOne ({
+      where: { codProcedencia: saved.codProcedencia }, 
+      relations: ['microbioma', 'especie', 'arvore', 'bioma']
+    });
+
+    if (!procedenciaComRelacoes) {
+      throw new NotFoundException(`Procedência ${saved.codProcedencia} criada, mas não encontrada para carregamento de relações.`)
+    }
+
+    return procedenciaComRelacoes;
   }
+
 
   async findAll(): Promise<Procedencia[]> {
     return await this.procedenciaRepository.find({
@@ -82,14 +94,14 @@ export class ProcedenciaService {
   async findByEspecie(codEspecie: number): Promise<Procedencia[]> {
     return await this.procedenciaRepository.find({
       where: { codEspecie },
-      relations: ['pais', 'bioma', 'microbioma'],
+      relations: ['bioma', 'microbioma'],
     });
   }
 
   async findByMicrobioma(codMicrobioma: number): Promise<Procedencia[]> {
     return await this.procedenciaRepository.find({
       where: { codMicrobioma },
-      relations: ['especie', 'pais', 'bioma'],
+      relations: ['especie', 'bioma'],
     });
   }
 
@@ -98,7 +110,7 @@ export class ProcedenciaService {
 
     return await this.procedenciaRepository.find({
       where: { [campo]: null },
-      relations: ['pais', 'bioma', 'microbioma'],
+      relations: ['bioma', 'microbioma'],
     });
   }
 }

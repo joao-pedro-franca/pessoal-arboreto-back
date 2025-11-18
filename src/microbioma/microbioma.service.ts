@@ -58,16 +58,16 @@ export class MicrobiomaService {
     return true;
   }
 
-  async searchByDescricao(descricao: string): Promise<Microbioma[]> {
-    return await this.microbiomaRepository
-      .createQueryBuilder('microbioma')
-      .leftJoinAndSelect('microbioma.procedencias', 'procedencias')
-      .where('LOWER(microbioma.dcrMicrobioma LIKE LOWER(:descricao', {
-        descricao: `%${descricao}`
-      })
-      .orderBy('microbioma.dcrMicrobioma', 'ASC')
-      .getMany();
-  }
+async searchByDescricao(descricao: string): Promise<Microbioma[]> {
+  // Deixa tudo minúsculo para combinar com o LOWER do SQL
+  const termo = `%${descricao.toLowerCase()}%`;
+  return this.microbiomaRepository
+    .createQueryBuilder('microbioma')
+    .leftJoinAndSelect('microbioma.procedencias', 'procedencia')
+    .where('LOWER(microbioma.dcrMicrobioma) LIKE :descricao', { descricao: termo })
+    .orderBy('microbioma.dcrMicrobioma', 'ASC')
+    .getMany();
+}
 
   async getEstatisticas(id: number): Promise<any> {
     const estatisticas = await this.microbiomaRepository
